@@ -16,23 +16,26 @@ import {
 import { toast, Toaster } from 'react-hot-toast';
 
 import { NavigationProgress } from './components/navigation-progress';
+import { getToken } from './auth/auth.server';
 import { getToastSession } from './toasts/toast.server';
+import { useSocketAuth } from './ws/use-socket-auth';
 import styles from './tailwind.css';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
 export const loader = async ({ request }: DataFunctionArgs) => {
+  const token = await getToken(request);
   const toasts = getToastSession(request);
   const messages = await toasts.getMessages();
 
   return json(
-    { messages },
+    { messages, env: { API_TOKEN: token, API_URL: process.env.API_URL } },
     { headers: { 'Set-Cookie': await toasts.commit() } }
   );
 };
 
 export default function App() {
-  const { messages } = useLoaderData<typeof loader>();
+  const { messages, env } = useLoaderData<typeof loader>();
 
   React.useEffect(() => {
     messages.forEach(message => {
@@ -47,6 +50,8 @@ export default function App() {
     });
   }, [messages]);
 
+  useSocketAuth(env.API_TOKEN);
+
   return (
     <html lang="en">
       <head>
@@ -60,8 +65,13 @@ export default function App() {
         <NavigationProgress />
         <Toaster position="top-right" />
 
-        <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.process = { env: ${JSON.stringify(env)} }`,
+          }}
+        />
         <Scripts />
+        <ScrollRestoration />
         <LiveReload />
       </body>
     </html>
