@@ -38,11 +38,11 @@ export function Discussion({ discussion }: Props) {
           {discussion.user.name} started on {formattedCreatedAt}
         </p>
       </div>
-      <div className="grid gap-1 text-sm">
+      <div className="text-sm">
         <button
           className={cn(
             'flex items-center gap-2 rounded-xl',
-            'px-2 py-1 border border-gray-200',
+            'px-2 py-1 mb-1 border border-gray-200',
             'cursor-default hover:bg-gray-50 hover:text-blue-500'
           )}
           aria-label={`${discussion.votes_count} votos`}
