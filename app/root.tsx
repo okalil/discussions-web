@@ -15,9 +15,9 @@ import {
 } from '@remix-run/react';
 import { toast, Toaster } from 'react-hot-toast';
 
+import { NavigationProgress } from './components/navigation-progress';
 import { getToastSession } from './toasts/toast.server';
 import styles from './tailwind.css';
-import { NavigationProgress } from './components/navigation-progress';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 

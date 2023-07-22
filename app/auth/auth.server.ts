@@ -8,6 +8,12 @@ export async function saveToken(request: Request, token: string) {
   return cookie;
 }
 
+export async function getToken(request: Request) {
+  const cookieHeader = request.headers.get('Cookie');
+  const session = await sessionStorage.getSession(cookieHeader);
+  return session.get('token');
+}
+
 export async function destroySession(request: Request) {
   const cookieHeader = request.headers.get('Cookie');
   const session = await sessionStorage.getSession(cookieHeader);

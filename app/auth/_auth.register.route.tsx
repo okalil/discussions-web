@@ -1,15 +1,19 @@
 import type { V2_MetaFunction } from '@remix-run/react';
 import type { DataFunctionArgs } from '@remix-run/node';
-import { Form, Link, useNavigation, useSubmit } from '@remix-run/react';
+import {
+  Form,
+  Link,
+  useFormAction,
+  useNavigation,
+  useSubmit,
+} from '@remix-run/react';
 import { redirect } from '@remix-run/node';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { Button } from '~/components/button';
-import { addToast } from '~/toasts/toast.server';
 import { FormInput } from '~/components/forms/form-input';
 import { requester } from '~/lib/requester';
 import { handleActionError } from '~/lib/handle-action-error.server';
-import { saveToken } from './auth.server';
 
 export const meta: V2_MetaFunction = () => [{ title: 'Criar conta' }];
 
@@ -18,16 +22,24 @@ export const action = async ({ request }: DataFunctionArgs) => {
     const body = new URLSearchParams(await request.text());
     const response = await requester.post('/api/v1/users', { body });
     const { token } = await response.json();
-    const cookies = await Promise.all([
-      saveToken(request, token),
-      addToast(request, {
-        content: 'Autenticado com sucesso!',
-        type: 'success',
-      }),
-    ]);
 
-    const headers = new Headers();
-    cookies.forEach(cookie => headers.append('Set-Cookie', cookie));
+    const session = await sessionStorage.getSession(
+      request.headers.get('Cookie')
+    );
+    session.set('token', token);
+    session.set(
+      'toasts',
+      JSON.stringify([
+        {
+          content: 'Autenticado com sucesso!',
+          type: 'success',
+        },
+      ])
+    );
+
+    const headers = new Headers({
+      'Set-Cookie': await sessionStorage.commitSession(session),
+    });
 
     return redirect('/', { headers });
   } catch (error) {
@@ -36,8 +48,8 @@ export const action = async ({ request }: DataFunctionArgs) => {
 };
 
 export default function RegisterRoute() {
-  const navigation = useNavigation();
   const submit = useSubmit();
+  const loading = useFormAction() === useNavigation().formAction;
 
   const form = useForm();
 
@@ -96,7 +108,7 @@ export default function RegisterRoute() {
         <Button
           variant="primary"
           className="w-full h-10 mb-6"
-          loading={navigation.state !== 'idle'}
+          loading={loading}
         >
           Criar
         </Button>

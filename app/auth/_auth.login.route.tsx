@@ -14,8 +14,7 @@ import { Button } from '~/components/button';
 import { FormInput } from '~/components/forms/form-input';
 import { requester } from '~/lib/requester';
 import { handleActionError } from '~/lib/handle-action-error.server';
-import { addToast } from '~/toasts/toast.server';
-import { saveToken } from './auth.server';
+import { sessionStorage } from '~/session.server';
 
 export const meta: V2_MetaFunction = () => [{ title: 'Login' }];
 
@@ -24,16 +23,24 @@ export const action = async ({ request }: DataFunctionArgs) => {
     const body = new URLSearchParams(await request.text());
     const response = await requester.post('/api/v1/users/login', { body });
     const { token } = await response.json();
-    const cookies = await Promise.all([
-      saveToken(request, token),
-      addToast(request, {
-        content: 'Autenticado com sucesso!',
-        type: 'success',
-      }),
-    ]);
 
-    const headers = new Headers();
-    cookies.forEach(cookie => headers.append('Set-Cookie', cookie));
+    const session = await sessionStorage.getSession(
+      request.headers.get('Cookie')
+    );
+    session.set('token', token);
+    session.set(
+      'toasts',
+      JSON.stringify([
+        {
+          content: 'Autenticado com sucesso!',
+          type: 'success',
+        },
+      ])
+    );
+
+    const headers = new Headers({
+      'Set-Cookie': await sessionStorage.commitSession(session),
+    });
 
     return redirect('/', { headers });
   } catch (error) {
