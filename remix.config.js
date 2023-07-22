@@ -17,6 +17,7 @@ module.exports = {
     v2_normalizeFormMethod: true,
     v2_routeConvention: true,
   },
+  tailwind: true,
   async routes() {
     const appDirectory = path.join(__dirname, 'app');
     return routeExtensions(appDirectory);

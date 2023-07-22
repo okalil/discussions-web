@@ -41,4 +41,22 @@ export class Requester {
     this._fetch(input, { ...init, method: 'DELETE' });
 }
 
-export const requester = new Requester({ baseUrl: 'http://localhost:3333' });
+export class RequesterError extends Error {
+  data;
+  status;
+  constructor(message: string, status: number, data: Record<string, any>) {
+    super(message);
+    this.data = data;
+    this.status = status;
+  }
+}
+
+export const requester = new Requester({
+  baseUrl: 'http://localhost:3333',
+  async onError(response) {
+    const content = await response.text();
+    const json = JSON.parse(content);
+    const message = json?.errors?.[0]?.message ?? 'Unexpected Error'; // this can change based on the json returned by the api
+    throw new RequesterError(message, response.status, json);
+  },
+});
