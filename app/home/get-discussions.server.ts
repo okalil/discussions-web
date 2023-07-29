@@ -8,6 +8,7 @@ const schema = z.object({
       id: z.number(),
       title: z.string(),
       description: z.string().nullish(),
+      user_voted: z.boolean(),
       votes_count: z.number(),
       comments_count: z.number(),
       user: z.object({
@@ -20,7 +21,7 @@ const schema = z.object({
     .array(),
 });
 
-export const getDiscussions = async () => {
-  const response = await requester.get('/api/v1/discussions');
+export const getDiscussions = async (token: string) => {
+  const response = await requester.get('/api/v1/discussions', { token });
   return schema.parse(await response.json());
 };

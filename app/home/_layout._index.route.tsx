@@ -1,14 +1,20 @@
 import type { V2_MetaFunction } from '@remix-run/react';
 import { Form, useLoaderData } from '@remix-run/react';
+import type { DataFunctionArgs } from '@remix-run/node';
 
 import { Button } from '~/components/button';
 import { getDiscussions } from './get-discussions.server';
 import { Discussion } from './discussion';
+import { getSessionStorage } from '~/session.server';
+import { getToken } from '~/auth/auth.server';
 
 export const meta: V2_MetaFunction = () => [
   { title: 'Top discussions | Community' },
 ];
-export const loader = () => getDiscussions();
+export const loader = async ({ request }: DataFunctionArgs) => {
+  const storage = await getSessionStorage(request);
+  return getDiscussions(getToken(storage.session));
+};
 
 export type Loader = typeof loader;
 

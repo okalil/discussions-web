@@ -13,12 +13,14 @@ import { Button } from '~/components/button';
 import { FormInput } from '~/components/forms/form-input';
 import { handleActionError } from '~/lib/handle-action-error.server';
 import { requester } from '~/lib/requester';
+import { getSessionStorage } from '~/session.server';
 
 export const meta: V2_MetaFunction = () => [{ title: 'Nova discussão' }];
 
 export const action = async ({ request }: DataFunctionArgs) => {
   try {
-    const token = await getToken(request);
+    const storage = await getSessionStorage(request);
+    const token = getToken(storage.session);
     const body = new URLSearchParams(await request.text());
     const response = await requester.post(`/api/v1/discussions`, {
       body,

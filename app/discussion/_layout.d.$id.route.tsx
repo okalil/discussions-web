@@ -13,8 +13,6 @@ import { getToken } from '~/auth/auth.server';
 import { requester } from '~/lib/requester';
 import { handleActionError } from '~/lib/handle-action-error.server';
 import { Button } from '~/components/button';
-import { cn } from '~/lib/classnames';
-import { ArrowUpIcon } from '~/icons/arrow-up-icon';
 import { getDiscussion } from './get-discussion';
 import { getComments } from './get-comments';
 import { socket } from '~/ws/socket.client';
@@ -22,6 +20,7 @@ import { CommentsCount } from './comments-count';
 import { CommentsList } from './comments-list';
 import { getSessionStorage } from '~/session.server';
 import { Avatar } from '~/components/avatar';
+import { DiscussionVote } from '~/home/discussion-vote';
 
 export const action = async ({ request, params }: DataFunctionArgs) => {
   try {
@@ -42,7 +41,7 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   const storage = await getSessionStorage(request);
   const token = getToken(storage.session);
   const [{ discussion }, { comments }] = await Promise.all([
-    getDiscussion(params.id),
+    getDiscussion(params.id, token),
     getComments(params.id, token),
   ]);
   return { discussion, comments };
@@ -87,19 +86,7 @@ export default function DiscussionRoute() {
 
         <div className="mb-3">{discussion.description}</div>
 
-        <div className="flex items-center justify-end">
-          <button
-            className={cn(
-              'flex items-center gap-2 rounded-xl',
-              'px-2 py-1 border border-gray-200',
-              'cursor-default hover:bg-gray-50 hover:text-blue-500'
-            )}
-            aria-label={`${discussion.votes_count} votos`}
-          >
-            <ArrowUpIcon size={16} />
-            {discussion.votes_count}
-          </button>
-        </div>
+        <DiscussionVote discussion={discussion} />
       </section>
 
       <section>

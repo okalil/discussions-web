@@ -1,10 +1,10 @@
 import { Form, Link } from '@remix-run/react';
-import { ArrowUpIcon } from '~/icons/arrow-up-icon';
-import { ChatBubbleIcon } from '~/icons/chat-bubble-icon';
-import { cn } from '~/lib/classnames';
 
 import type { Loader } from './_layout._index.route';
+import { ChatBubbleIcon } from '~/icons/chat-bubble-icon';
 import { Avatar } from '~/components/avatar';
+import { cn } from '~/lib/classnames';
+import { DiscussionVote } from './discussion-vote';
 
 interface Props {
   discussion: Awaited<ReturnType<Loader>>['data'][number];
@@ -40,17 +40,7 @@ export function Discussion({ discussion }: Props) {
         </p>
       </div>
       <div className="text-sm">
-        <button
-          className={cn(
-            'flex items-center gap-2 rounded-xl',
-            'px-2 py-1 mb-1 border border-gray-200',
-            'cursor-default hover:bg-gray-50 hover:text-blue-500'
-          )}
-          aria-label={`${discussion.votes_count} votos`}
-        >
-          <ArrowUpIcon size={16} />
-          {discussion.votes_count}
-        </button>
+        <DiscussionVote discussion={discussion} />
 
         <Form action={`d/${discussion.id}`}>
           <button
