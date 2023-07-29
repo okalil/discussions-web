@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const token = process.env.API_TOKEN;
+const token = window.token;
 
 export const socket = io(process.env.API_URL!, {
   auth: { token },

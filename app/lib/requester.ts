@@ -1,6 +1,10 @@
+interface ExtendendRequestInit extends RequestInit {
+  token?: string;
+}
+
 type FetchFunction = (
   input: RequestInfo | URL,
-  init?: RequestInit | undefined
+  init?: ExtendendRequestInit | undefined
 ) => Promise<Response>;
 
 type Options = {
@@ -16,12 +20,23 @@ export class Requester {
   static create(options?: Options) {
     return new Requester(options);
   }
-  async _fetch(input: RequestInfo | URL, init?: RequestInit | undefined) {
+  private async _fetch(
+    input: RequestInfo | URL,
+    init?: ExtendendRequestInit | undefined
+  ) {
     const baseUrl = this._options?.baseUrl ?? '';
     const request = new Request(
       typeof input === 'string' ? baseUrl + input : input,
       init
     );
+
+    if (typeof window !== 'undefined') {
+      request.headers.set('Authorization', `Bearer ${window.token}`);
+    }
+    if (init?.token) {
+      request.headers.set('Authorization', `Bearer ${init.token}`);
+    }
+
     const response = await fetch(request);
 
     if (!response.ok) {
@@ -52,7 +67,7 @@ export class RequesterError extends Error {
 }
 
 export const requester = new Requester({
-  baseUrl: 'http://localhost:3333',
+  baseUrl: process.env.API_URL!,
   async onError(response) {
     const content = await response.text();
     const json = JSON.parse(content);
