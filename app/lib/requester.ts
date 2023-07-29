@@ -1,3 +1,5 @@
+import { redirect } from '@remix-run/node';
+
 interface ExtendendRequestInit extends RequestInit {
   token?: string;
 }
@@ -69,6 +71,15 @@ export class RequesterError extends Error {
 export const requester = new Requester({
   baseUrl: process.env.API_URL!,
   async onError(response) {
+    if (response.status === 401) {
+      if (typeof window === 'undefined') {
+        throw redirect('/login');
+      } else {
+        window.location.replace('/login');
+        return;
+      }
+    }
+
     const content = await response.text();
     const json = JSON.parse(content);
     const message = json?.errors?.[0]?.message ?? 'Unexpected Error'; // this can change based on the json returned by the api
