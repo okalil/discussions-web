@@ -10,7 +10,10 @@ export function ArrowUpIcon({ size = 24 }: Props) {
       height={size}
       width={size}
     >
-      <path d="M452-244v-400L282-477l-42-43 241-241 241 241-42 42-168-168v402h-60Z" />
+      <path
+        fill="currentColor"
+        d="M452-244v-400L282-477l-42-43 241-241 241 241-42 42-168-168v402h-60Z"
+      />
     </svg>
   );
 }

@@ -1,5 +1,12 @@
 import { redirect, type DataFunctionArgs } from '@remix-run/node';
-import { Form, useLoaderData, type V2_MetaFunction } from '@remix-run/react';
+import {
+  Form,
+  useFormAction,
+  useLoaderData,
+  useLocation,
+  useNavigation,
+  type V2_MetaFunction,
+} from '@remix-run/react';
 import React from 'react';
 
 import { getToken } from '~/auth/auth.server';
@@ -13,14 +20,17 @@ import { getComments } from './get-comments';
 import { socket } from '~/ws/socket.client';
 import { CommentsCount } from './comments-count';
 import { CommentsList } from './comments-list';
+import { getSessionStorage } from '~/session.server';
+import { Avatar } from '~/components/avatar';
 
 export const action = async ({ request, params }: DataFunctionArgs) => {
   try {
-    const token = await getToken(request);
+    const storage = await getSessionStorage(request);
+    const token = getToken(storage.session);
     const body = new URLSearchParams(await request.text());
     await requester.post(`/api/v1/discussions/${params.id}/comments`, {
       body,
-      headers: { Authorization: `Bearer ${token}` },
+      token,
     });
     return redirect(request.url);
   } catch (error) {
@@ -28,10 +38,12 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
   }
 };
 
-export const loader = async ({ params }: DataFunctionArgs) => {
+export const loader = async ({ request, params }: DataFunctionArgs) => {
+  const storage = await getSessionStorage(request);
+  const token = getToken(storage.session);
   const [{ discussion }, { comments }] = await Promise.all([
     getDiscussion(params.id),
-    getComments(params.id),
+    getComments(params.id, token),
   ]);
   return { discussion, comments };
 };
@@ -43,7 +55,7 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data }) => [
 ];
 
 export default function DiscussionRoute() {
-  const { discussion, comments } = useLoaderData<typeof loader>();
+  const { discussion } = useLoaderData<typeof loader>();
 
   const formattedCreatedAt = new Intl.DateTimeFormat('en', {
     month: 'short',
@@ -54,7 +66,7 @@ export default function DiscussionRoute() {
   React.useEffect(() => {
     socket.emit('discussion_subscribe', discussion.id);
     return () => {
-      socket.emit('discussion_unsubscribe');
+      socket.emit('discussion_unsubscribe', discussion.id);
     };
   }, [discussion.id]);
 
@@ -64,10 +76,10 @@ export default function DiscussionRoute() {
 
       <section className="py-3 border-y border-gray-300 mb-4">
         <div className="flex items-center gap-2 mb-3">
-          <img
-            src={'http://localhost:3333' + discussion.user.picture}
+          <Avatar
+            src={discussion.user.picture?.url}
             alt={discussion.user.name}
-            className="h-10 rounded-full"
+            size={40}
           />
           <span className="font-semibold">{discussion.user.name}</span>
           <span className="text-gray-500">{formattedCreatedAt}</span>
@@ -95,15 +107,30 @@ export default function DiscussionRoute() {
           <CommentsCount defaultCount={discussion.comments_count} />
         </h2>
 
-        <CommentsList initialComments={comments} />
+        <CommentsList />
       </section>
 
       <hr />
 
-      <Form method="POST">
-        <textarea name="content" />
-        <Button variant="primary">Comentar</Button>
-      </Form>
+      <CreateComment />
     </main>
   );
 }
+
+function CreateComment() {
+  const location = useLocation();
+  const loading = useFormAction() === useNavigation().formAction;
+
+  return (
+    <Form method="POST" replace preventScrollReset>
+      {/* when form navigation happens location key changes, triggering textarea remount */}
+      <textarea name="content" key={location.key} />
+      <Button variant="primary" loading={loading}>
+        Comentar
+      </Button>
+    </Form>
+  );
+}
+
+// comments list will be updated by socket, so revalidation is unnecessary
+export const shouldRevalidate = () => !socket.connected;

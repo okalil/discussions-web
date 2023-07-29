@@ -11,7 +11,10 @@ export function Avatar({ src, alt, size, className }: AvatarProps) {
   if (!src)
     return (
       <div
-        className="grid place-items-center rounded-full"
+        className={cn(
+          'grid place-items-center rounded-full',
+          'border border-gray-300'
+        )}
         style={{ width: size, height: size }}
       >
         {alt.slice(0, 1)}
