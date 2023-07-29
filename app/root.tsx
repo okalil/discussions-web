@@ -80,7 +80,7 @@ export default function App() {
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.token = ${token}`,
+            __html: `window.token = '${token}'`,
           }}
         />
         <Scripts />
