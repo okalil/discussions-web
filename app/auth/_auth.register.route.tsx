@@ -14,6 +14,9 @@ import { Button } from '~/components/button';
 import { FormInput } from '~/components/forms/form-input';
 import { requester } from '~/lib/requester';
 import { handleActionError } from '~/lib/handle-action-error.server';
+import { getSessionStorage } from '~/session.server';
+import { addToast } from '~/toasts/toast.server';
+import { saveToken } from './auth.server';
 
 export const meta: V2_MetaFunction = () => [{ title: 'Criar conta' }];
 
@@ -23,25 +26,14 @@ export const action = async ({ request }: DataFunctionArgs) => {
     const response = await requester.post('/api/v1/users', { body });
     const { token } = await response.json();
 
-    const session = await sessionStorage.getSession(
-      request.headers.get('Cookie')
-    );
-    session.set('token', token);
-    session.set(
-      'toasts',
-      JSON.stringify([
-        {
-          content: 'Autenticado com sucesso!',
-          type: 'success',
-        },
-      ])
-    );
-
-    const headers = new Headers({
-      'Set-Cookie': await sessionStorage.commitSession(session),
+    const storage = await getSessionStorage(request);
+    saveToken(storage.session, token);
+    addToast(storage.session, {
+      content: 'Autenticado com sucesso!',
+      type: 'success',
     });
 
-    return redirect('/', { headers });
+    return redirect('/', { headers: { 'Set-Cookie': await storage.commit() } });
   } catch (error) {
     return handleActionError({ error, request });
   }
@@ -77,10 +69,10 @@ export default function RegisterRoute() {
           type="email"
           rules={{
             required: 'E-mail é obrigatório',
-            pattern: {
-              value: /^[a-z0-9.]+@[a-z0-9]+\.[a-z]+\.([a-z]+)?$/gi,
-              message: 'Insira um e-mail válido',
-            },
+            // pattern: {
+            //   value: /^[a-z0-9.]+@[a-z0-9]+\.[a-z]+\.([a-z]+)?$/gi,
+            //   message: 'Insira um e-mail válido',
+            // },
           }}
         />
         <FormInput
@@ -98,8 +90,9 @@ export default function RegisterRoute() {
           rules={{
             required: 'Confirmar senha é obrigatório',
             validate(value, values) {
+              console.log(value, values);
               return (
-                values.user?.password === value ||
+                values?.password === value ||
                 'Confirmação de senha deve ser igual à senha'
               );
             },

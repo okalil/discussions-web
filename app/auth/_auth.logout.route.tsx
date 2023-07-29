@@ -1,12 +1,14 @@
 import type { DataFunctionArgs } from '@remix-run/node';
 import { redirect } from '@remix-run/node';
-import { destroySession } from './auth.server';
 import { handleActionError } from '~/lib/handle-action-error.server';
+import { getSessionStorage } from '~/session.server';
 
 export const action = async ({ request }: DataFunctionArgs) => {
   try {
-    const cookie = await destroySession(request);
-    return redirect('/login', { headers: { 'Set-Cookie': cookie } });
+    const storage = await getSessionStorage(request);
+    return redirect('/login', {
+      headers: { 'Set-Cookie': await storage.destroy() },
+    });
   } catch (error) {
     return handleActionError({ error, request });
   }

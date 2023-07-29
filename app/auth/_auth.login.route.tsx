@@ -14,7 +14,9 @@ import { Button } from '~/components/button';
 import { FormInput } from '~/components/forms/form-input';
 import { requester } from '~/lib/requester';
 import { handleActionError } from '~/lib/handle-action-error.server';
-import { sessionStorage } from '~/session.server';
+import { getSessionStorage } from '~/session.server';
+import { saveToken } from './auth.server';
+import { addToast } from '~/toasts/toast.server';
 
 export const meta: V2_MetaFunction = () => [{ title: 'Login' }];
 
@@ -24,25 +26,14 @@ export const action = async ({ request }: DataFunctionArgs) => {
     const response = await requester.post('/api/v1/users/login', { body });
     const { token } = await response.json();
 
-    const session = await sessionStorage.getSession(
-      request.headers.get('Cookie')
-    );
-    session.set('token', token);
-    session.set(
-      'toasts',
-      JSON.stringify([
-        {
-          content: 'Autenticado com sucesso!',
-          type: 'success',
-        },
-      ])
-    );
-
-    const headers = new Headers({
-      'Set-Cookie': await sessionStorage.commitSession(session),
+    const storage = await getSessionStorage(request);
+    saveToken(storage.session, token);
+    addToast(storage.session, {
+      content: 'Autenticado com sucesso!',
+      type: 'success',
     });
 
-    return redirect('/', { headers });
+    return redirect('/', { headers: { 'Set-Cookie': await storage.commit() } });
   } catch (error) {
     return handleActionError({ error, request });
   }

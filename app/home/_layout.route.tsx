@@ -4,9 +4,11 @@ import { getToken } from '~/auth/auth.server';
 import { getUser } from './get-user.server';
 import { Button } from '~/components/button';
 import { cn } from '~/lib/classnames';
+import { getSessionStorage } from '~/session.server';
 
 export const loader = async ({ request }: DataFunctionArgs) => {
-  const token = await getToken(request);
+  const storage = await getSessionStorage(request);
+  const token = await getToken(storage.session);
   if (token) return getUser(token);
   return null;
 };

@@ -1,41 +1,29 @@
-import { sessionStorage } from '../session.server';
+import type { Session } from '@remix-run/node';
 
 export type ToastMessage = {
   content: string;
   type: 'info' | 'error' | 'success';
 };
 
-export function addToast(
-  request: Request,
-  toastMessage: ToastMessage
-): Promise<string> {
-  const toasts = getToastSession(request);
+export function addToast(session: Session, toastMessage: ToastMessage) {
+  const toasts = getToastStorage(session);
   toasts.add(toastMessage);
-  return toasts.commit();
 }
 
-export function getToastSession(request: Request) {
+export function getToastStorage(session: Session) {
   const nextMessages: ToastMessage[] = [];
 
-  async function getMessages(): Promise<ToastMessage[]> {
-    const cookie = request.headers.get('Cookie');
-    const session = await sessionStorage.getSession(cookie);
+  function getMessages() {
     const messages = JSON.parse(
       session.get('toasts') || '[]'
     ) as ToastMessage[];
     return messages;
   }
 
-  async function commit(): Promise<string> {
-    const cookie = request.headers.get('Cookie');
-    const session = await sessionStorage.getSession(cookie);
-    session.flash('toasts', JSON.stringify(nextMessages));
-    return sessionStorage.commitSession(session);
-  }
-
   function add(toastMessage: ToastMessage): void {
     nextMessages.unshift(toastMessage);
+    session.flash('toasts', JSON.stringify(nextMessages));
   }
 
-  return { getMessages, commit, add };
+  return { getMessages, add };
 }

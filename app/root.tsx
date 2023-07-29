@@ -17,9 +17,10 @@ import { toast, Toaster } from 'react-hot-toast';
 
 import { NavigationProgress } from './components/navigation-progress';
 import { getToken } from './auth/auth.server';
-import { getToastSession } from './toasts/toast.server';
+import { getToastStorage } from './toasts/toast.server';
 import { useSocketAuth } from './ws/use-socket-auth';
 import styles from './tailwind.css';
+import { getSessionStorage } from './session.server';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
@@ -30,13 +31,14 @@ declare global {
 }
 
 export const loader = async ({ request }: DataFunctionArgs) => {
-  const token = await getToken(request);
-  const toasts = getToastSession(request);
-  const messages = await toasts.getMessages();
+  const storage = await getSessionStorage(request);
+  const token = getToken(storage.session);
+  const toasts = getToastStorage(storage.session);
+  const messages = toasts.getMessages();
 
   return json(
     { messages, token, env: { API_URL: process.env.API_URL } },
-    { headers: { 'Set-Cookie': await toasts.commit() } }
+    { headers: { 'Set-Cookie': await storage.commit() } }
   );
 };
 
