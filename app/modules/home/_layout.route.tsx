@@ -1,6 +1,6 @@
 import type { DataFunctionArgs } from '@remix-run/node';
 import { Form, Link, Outlet, useLoaderData } from '@remix-run/react';
-import { getToken } from '~/auth/auth.server';
+import { getToken } from '~/modules/auth/auth.server';
 import { getUser } from './get-user.server';
 import { Button } from '~/components/button';
 import { cn } from '~/lib/classnames';

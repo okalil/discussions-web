@@ -6,7 +6,7 @@ import { Button } from '~/components/button';
 import { getDiscussions } from './get-discussions.server';
 import { Discussion } from './discussion';
 import { getSessionStorage } from '~/session.server';
-import { getToken } from '~/auth/auth.server';
+import { getToken } from '~/modules/auth/auth.server';
 
 export const meta: V2_MetaFunction = () => [
   { title: 'Top discussions | Community' },

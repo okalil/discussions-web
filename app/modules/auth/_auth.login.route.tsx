@@ -16,7 +16,7 @@ import { requester } from '~/lib/requester';
 import { handleActionError } from '~/lib/handle-action-error.server';
 import { getSessionStorage } from '~/session.server';
 import { saveToken } from './auth.server';
-import { addToast } from '~/toasts/toast.server';
+import { addToast } from '~/lib/toast.server';
 
 export const meta: V2_MetaFunction = () => [{ title: 'Login' }];
 

@@ -9,7 +9,7 @@ import {
 } from '@remix-run/react';
 import React from 'react';
 
-import { getToken } from '~/auth/auth.server';
+import { getToken } from '~/modules/auth/auth.server';
 import { requester } from '~/lib/requester';
 import { handleActionError } from '~/lib/handle-action-error.server';
 import { Button } from '~/components/button';
@@ -20,7 +20,7 @@ import { CommentsCount } from './comments-count';
 import { CommentsList } from './comments-list';
 import { getSessionStorage } from '~/session.server';
 import { Avatar } from '~/components/avatar';
-import { DiscussionVote } from '~/home/discussion-vote';
+import { DiscussionVote } from '~/modules/home/discussion-vote';
 
 export const action = async ({ request, params }: DataFunctionArgs) => {
   try {

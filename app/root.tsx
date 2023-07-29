@@ -16,8 +16,8 @@ import {
 import { toast, Toaster } from 'react-hot-toast';
 
 import { NavigationProgress } from './components/navigation-progress';
-import { getToken } from './auth/auth.server';
-import { getToastStorage } from './toasts/toast.server';
+import { getToken } from './modules/auth/auth.server';
+import { getToastStorage } from './lib/toast.server';
 import { useSocketAuth } from './ws/use-socket-auth';
 import styles from './tailwind.css';
 import { getSessionStorage } from './session.server';

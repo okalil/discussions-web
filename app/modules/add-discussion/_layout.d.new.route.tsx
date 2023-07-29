@@ -7,7 +7,7 @@ import {
   type V2_MetaFunction,
 } from '@remix-run/react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { getToken } from '~/auth/auth.server';
+import { getToken } from '~/modules/auth/auth.server';
 
 import { Button } from '~/components/button';
 import { FormInput } from '~/components/forms/form-input';

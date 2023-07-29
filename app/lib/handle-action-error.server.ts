@@ -1,6 +1,6 @@
 import { json } from '@remix-run/node';
 import { RequesterError } from './requester';
-import { addToast } from '~/toasts/toast.server';
+import { addToast } from '~/lib/toast.server';
 import { getSessionStorage } from '~/session.server';
 
 export async function handleActionError({
