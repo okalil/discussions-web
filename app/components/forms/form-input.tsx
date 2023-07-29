@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FieldValues, RegisterOptions } from 'react-hook-form';
-import { useFormContext } from 'react-hook-form';
+import { get, useFormContext } from 'react-hook-form';
 
 import { cn } from '~/lib/classnames';
 
@@ -25,6 +25,7 @@ export function FormInput({
   const { register, getFieldState, formState } = useFormContext();
   const field = register(props.name, rules);
   const { error } = getFieldState(props.name, formState);
+  const defaultValue = get(formState.defaultValues, props.name);
 
   return (
     <div className={cn('flex flex-col', className)} style={style}>
@@ -38,6 +39,7 @@ export function FormInput({
         aria-describedby={errorMessageId}
         className={cn('border border-gray-200', 'rounded-lg py-2 px-2')}
         autoFocus={!!error}
+        defaultValue={defaultValue}
         {...props}
         {...field}
         ref={element => {

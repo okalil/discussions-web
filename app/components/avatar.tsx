@@ -1,6 +1,6 @@
 import { cn } from '~/lib/classnames';
 
-interface AvatarProps {
+export interface AvatarProps {
   src?: string | null;
   alt: string;
   size: number;

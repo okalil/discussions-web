@@ -90,7 +90,6 @@ export default function RegisterRoute() {
           rules={{
             required: 'Confirmar senha é obrigatório',
             validate(value, values) {
-              console.log(value, values);
               return (
                 values?.password === value ||
                 'Confirmação de senha deve ser igual à senha'
