@@ -10,6 +10,10 @@ export async function handleActionError({
   error: unknown;
   request: Request;
 }) {
+  if (error instanceof Response) {
+    throw error;
+  }
+
   const storage = await getSessionStorage(request);
 
   if (error instanceof RequesterError) {

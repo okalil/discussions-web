@@ -30,10 +30,18 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
     const storage = await getSessionStorage(request);
     const token = getToken(storage.session);
     const body = new URLSearchParams(await request.text());
-    await requester.post(`/api/v1/discussions/${params.id}/comments`, {
-      body,
-      token,
-    });
+    const commentId = body.get('id');
+    if (commentId) {
+      await requester.put(
+        `/api/v1/discussions/${params.id}/comments/${commentId}`,
+        { body, token }
+      );
+    } else {
+      await requester.post(`/api/v1/discussions/${params.id}/comments`, {
+        body,
+        token,
+      });
+    }
     return redirect('.');
   } catch (error) {
     return handleActionError({ error, request });

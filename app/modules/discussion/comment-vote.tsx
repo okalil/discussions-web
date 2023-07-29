@@ -1,8 +1,8 @@
 import React from 'react';
-import { useSocketEvent } from '~/ws/use-socket-event';
+import { Form, useRouteLoaderData } from '@remix-run/react';
+
 import { cn } from '~/lib/classnames';
 import { ArrowUpIcon } from '~/icons/arrow-up-icon';
-import { Form, useRouteLoaderData } from '@remix-run/react';
 import { requester } from '~/lib/requester';
 
 interface CommentVoteProps {
@@ -15,18 +15,9 @@ export function CommentVote({
   comment: initialComment,
 }: CommentVoteProps) {
   const [comment, setComment] = React.useState(initialComment);
+  React.useEffect(() => setComment(initialComment), [initialComment]);
 
   const root = useRouteLoaderData('root');
-
-  useSocketEvent('comment_update', async commentId => {
-    if (comment.id === commentId) {
-      const response = await requester.get(
-        `/api/v1/discussions/${discussion.id}/comments/${comment.id}`
-      );
-      const data = await response.json();
-      setComment(data.comment);
-    }
-  });
 
   return (
     <Form
@@ -35,6 +26,7 @@ export function CommentVote({
       onSubmit={e => {
         e.preventDefault();
         const voted = !comment.user_voted;
+        // optimistic update
         setComment({
           ...comment,
           user_voted: voted,

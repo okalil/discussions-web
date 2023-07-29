@@ -13,6 +13,8 @@ export const loader = async ({ request }: DataFunctionArgs) => {
   return null;
 };
 
+export type LayoutLoader = typeof loader;
+
 export default function LayoutRoute() {
   const optionalUser = useLoaderData<typeof loader>();
 
