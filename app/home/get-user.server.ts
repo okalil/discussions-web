@@ -5,7 +5,7 @@ const schema = z.object({
   user: z.object({
     id: z.number(),
     email: z.string(),
-    picture: z.string().nullish(),
+    picture: z.object({ url: z.string() }).nullish(),
     name: z.string(),
   }),
 });

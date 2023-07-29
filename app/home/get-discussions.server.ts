@@ -10,7 +10,11 @@ const schema = z.object({
       description: z.string().nullish(),
       votes_count: z.number(),
       comments_count: z.number(),
-      user: z.object({ id: z.number(), name: z.string(), picture: z.string().nullish() }),
+      user: z.object({
+        id: z.number(),
+        name: z.string(),
+        picture: z.object({ url: z.string() }).nullish(),
+      }),
       created_at: z.string(),
     })
     .array(),
@@ -18,6 +22,5 @@ const schema = z.object({
 
 export const getDiscussions = async () => {
   const response = await requester.get('/api/v1/discussions');
-  const data = schema.parse(await response.json());
-  return data;
+  return schema.parse(await response.json());
 };

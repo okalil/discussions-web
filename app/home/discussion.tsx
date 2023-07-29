@@ -4,6 +4,7 @@ import { ChatBubbleIcon } from '~/icons/chat-bubble-icon';
 import { cn } from '~/lib/classnames';
 
 import type { Loader } from './_layout._index.route';
+import { Avatar } from '~/components/avatar';
 
 interface Props {
   discussion: Awaited<ReturnType<Loader>>['data'][number];
@@ -19,10 +20,10 @@ export function Discussion({ discussion }: Props) {
   return (
     <li className="flex gap-3 py-2 border-b border-gray-300">
       <div>
-        <img
-          src={'http://localhost:3333' + discussion.user.picture}
+        <Avatar
+          src={discussion.user.picture?.url}
           alt={discussion.user.name}
-          className="w-12 rounded-full"
+          size={48}
         />
       </div>
       <div className="flex-1">
