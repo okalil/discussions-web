@@ -58,6 +58,10 @@ export default function App() {
     });
   }, [messages]);
 
+  React.useEffect(() => {
+    window.token = token;
+  }, [token]);
+
   useSocketAuth(token);
 
   return (

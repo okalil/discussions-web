@@ -3,11 +3,12 @@ import {
   Form,
   useFormAction,
   useLoaderData,
-  useLocation,
   useNavigation,
+  useSubmit,
   type V2_MetaFunction,
 } from '@remix-run/react';
 import React from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 
 import { getToken } from '~/modules/auth/auth.server';
 import { requester } from '~/lib/requester';
@@ -21,6 +22,8 @@ import { CommentsList } from './comments-list';
 import { getSessionStorage } from '~/session.server';
 import { Avatar } from '~/components/avatar';
 import { DiscussionVote } from '~/modules/home/discussion-vote';
+import { cn } from '~/lib/classnames';
+import { FormTextarea } from '~/components/forms/form-textarea';
 
 export const action = async ({ request, params }: DataFunctionArgs) => {
   try {
@@ -31,7 +34,7 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
       body,
       token,
     });
-    return redirect(request.url);
+    return redirect('.');
   } catch (error) {
     return handleActionError({ error, request });
   }
@@ -105,17 +108,43 @@ export default function DiscussionRoute() {
 }
 
 function CreateComment() {
-  const location = useLocation();
+  const form = useForm();
+  const submit = useSubmit();
   const loading = useFormAction() === useNavigation().formAction;
 
+  const [hydrated, setHydrated] = React.useState(false);
+  React.useEffect(() => setHydrated(true), []);
+
   return (
-    <Form method="POST" replace preventScrollReset>
-      {/* when form navigation happens location key changes, triggering textarea remount */}
-      <textarea name="content" key={location.key} />
-      <Button variant="primary" loading={loading}>
-        Comentar
-      </Button>
-    </Form>
+    <FormProvider {...form}>
+      <Form
+        method="POST"
+        onSubmit={form.handleSubmit((_, e) => {
+          submit(e?.target, { preventScrollReset: true });
+          form.reset();
+        })}
+        className={cn(
+          'bg-gray-50 px-3 py-3',
+          'border border-gray-300 rounded-md'
+        )}
+      >
+        <FormTextarea
+          label="Write"
+          className="mb-3"
+          name="content"
+          rows={4}
+          rules={{ required: 'Preencha o campo' }}
+        />
+        <Button
+          variant="primary"
+          className="h-10 w-24 ml-auto"
+          disabled={hydrated && !form.watch('content')} // disable if js loaded but comment is empty
+          loading={loading}
+        >
+          Comentar
+        </Button>
+      </Form>
+    </FormProvider>
   );
 }
 
