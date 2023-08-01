@@ -4,7 +4,7 @@ import { Button } from './button';
 
 interface AlertModalProps extends AlertDialog.AlertDialogProps {
   className?: string;
-  trigger: JSX.Element;
+  trigger?: JSX.Element;
   title: string;
   description?: string;
   action: JSX.Element;
@@ -19,7 +19,7 @@ export const AlertModal = ({
   ...props
 }: AlertModalProps) => (
   <AlertDialog.Root {...props}>
-    <AlertDialog.Trigger asChild>{trigger}</AlertDialog.Trigger>
+    {trigger && <AlertDialog.Trigger asChild>{trigger}</AlertDialog.Trigger>}
     <AlertDialog.Portal>
       <AlertDialog.Overlay className="bg-black bg-opacity-40 data-[state=open]:animate-overlayShow fixed inset-0" />
       <AlertDialog.Content

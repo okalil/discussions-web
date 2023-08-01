@@ -17,7 +17,8 @@ import { FormTextarea } from '~/components/forms/form-textarea';
 import { Button } from '~/components/button';
 import { AlertModal } from '~/components/alert-modal';
 import { requester } from '~/lib/requester';
-import { Popover } from '~/components/popover';
+import { DropdownMenu } from '~/components/dropdown-menu';
+import { MoreIcon } from '~/icons/more-icon';
 
 interface CommentProps {
   comment: Awaited<ReturnType<Loader>>['comments'][number];
@@ -40,6 +41,7 @@ export function Comment({ comment, onDelete }: CommentProps) {
   const submit = useSubmit();
   const loading = useFormAction() === useNavigation().formAction;
   const [editing, setEditing] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
 
   if (editing) {
     return (
@@ -51,10 +53,7 @@ export function Comment({ comment, onDelete }: CommentProps) {
               submit(e?.target, { preventScrollReset: true });
               setEditing(false);
             })}
-            className={cn(
-              'bg-gray-50 px-3 py-3',
-              'border border-gray-300 rounded-md'
-            )}
+            className={cn('px-3 py-3', 'border border-gray-300 rounded-md')}
           >
             <input type="hidden" name="id" value={comment.id} />
             <FormTextarea
@@ -122,65 +121,67 @@ export function Comment({ comment, onDelete }: CommentProps) {
 
         {isUserComment && (
           <div>
-            <Popover
+            <DropdownMenu
               trigger={
                 <button
                   type="button"
                   aria-label="Comment options"
                   title="Comment options"
-                  className="grid place-items-center px-2 rounded-md hover:bg-gray-100"
+                  className="grid place-items-center p-2 rounded-md hover:bg-gray-100"
                 >
-                  ...
+                  <MoreIcon size={20} />
                 </button>
               }
             >
               <div className="grid gap-2 text-sm">
-                <button
-                  type="button"
-                  onClick={() =>
+                <DropdownMenu.Item
+                  onClick={() => {
                     navigator.clipboard.writeText(
-                      window.location.href.concat(`#comment-${comment.id}`)
-                    )
-                  }
-                  className="px-2 py-1 text-left rounded hover:bg-gray-200"
+                      window.location.href
+                        .split('#')[0]
+                        .concat(`#comment-${comment.id}`)
+                    );
+                  }}
+                  className="px-2 py-1 text-left rounded hover:bg-gray-100"
                 >
                   Copiar link
-                </button>
-                <button
-                  type="button"
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
                   onClick={() => setEditing(true)}
-                  className="px-2 py-1 text-left rounded hover:bg-gray-200"
+                  className="px-2 py-1 text-left rounded hover:bg-gray-100"
                 >
                   Editar
-                </button>
-                <AlertModal
-                  title="Delete comment"
-                  description="Are you sure you want to delete this comment?"
-                  trigger={
-                    <button
-                      type="button"
-                      className="px-2 py-1 text-left rounded "
-                    >
-                      Deletar
-                    </button>
-                  }
-                  action={
-                    <Form
-                      method="POST"
-                      onSubmit={e => {
-                        e.preventDefault();
-                        requester.delete(
-                          `/api/v1/discussions/${data.discussion.id}/comments/${comment.id}`
-                        );
-                        onDelete?.(comment.id);
-                      }}
-                    >
-                      <Button variant="danger">Delete comment</Button>
-                    </Form>
-                  }
-                />
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onClick={() => setDeleting(true)}
+                  className="px-2 py-1 text-left rounded text-red-500 hover:bg-red-50"
+                >
+                  Deletar
+                </DropdownMenu.Item>
               </div>
-            </Popover>
+            </DropdownMenu>
+
+            <AlertModal
+              title="Delete comment"
+              description="Are you sure you want to delete this comment?"
+              open={deleting}
+              onOpenChange={setDeleting}
+              action={
+                <Form
+                  method="POST"
+                  onSubmit={e => {
+                    e.preventDefault();
+                    requester.delete(
+                      `/api/v1/discussions/${data.discussion.id}/comments/${comment.id}`
+                    );
+                    onDelete?.(comment.id);
+                    setDeleting(false);
+                  }}
+                >
+                  <Button variant="danger">Delete comment</Button>
+                </Form>
+              }
+            />
           </div>
         )}
       </div>

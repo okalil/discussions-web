@@ -99,15 +99,13 @@ export default function DiscussionRoute() {
         <DiscussionVote discussion={discussion} />
       </section>
 
-      <section>
+      <section className="mb-4">
         <h2 className="font-semibold mb-3">
           <CommentsCount defaultCount={discussion.comments_count} />
         </h2>
 
         <CommentsList />
       </section>
-
-      <hr />
 
       <CreateComment />
     </main>
@@ -131,7 +129,7 @@ function CreateComment() {
           form.reset();
         })}
         className={cn(
-          'bg-gray-50 px-3 py-3',
+          'px-3 py-3',
           'border border-gray-300 rounded-md'
         )}
       >
