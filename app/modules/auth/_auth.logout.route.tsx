@@ -6,7 +6,7 @@ import { getSessionStorage } from '~/session.server';
 export const action = async ({ request }: DataFunctionArgs) => {
   try {
     const storage = await getSessionStorage(request);
-    return redirect('/login', {
+    return redirect(request.headers.get('referer') ?? '/', {
       headers: { 'Set-Cookie': await storage.destroy() },
     });
   } catch (error) {

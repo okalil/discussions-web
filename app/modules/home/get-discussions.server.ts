@@ -8,7 +8,7 @@ const schema = z.object({
       id: z.number(),
       title: z.string(),
       description: z.string().nullish(),
-      user_voted: z.boolean(),
+      user_voted: z.boolean().nullish(),
       votes_count: z.number(),
       comments_count: z.number(),
       user: z.object({

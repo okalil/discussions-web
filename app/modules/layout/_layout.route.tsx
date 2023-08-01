@@ -1,10 +1,12 @@
 import type { DataFunctionArgs } from '@remix-run/node';
 import { Form, Link, Outlet, useLoaderData } from '@remix-run/react';
+
 import { getToken } from '~/modules/auth/auth.server';
-import { getUser } from './get-user.server';
 import { Button } from '~/components/button';
 import { cn } from '~/lib/classnames';
 import { getSessionStorage } from '~/session.server';
+import { AuthModal } from '../auth/modal';
+import { getUser } from './get-user.server';
 
 export const loader = async ({ request }: DataFunctionArgs) => {
   const storage = await getSessionStorage(request);
@@ -23,7 +25,7 @@ export default function LayoutRoute() {
       <header className="bg-gray-900 text-gray-50">
         <div
           className={cn(
-            'flex items-center max-w-4xl mx-auto',
+            'flex items-center max-w-5xl mx-auto',
             'px-3 py-2 h-14'
           )}
         >
@@ -33,17 +35,23 @@ export default function LayoutRoute() {
 
           {!optionalUser && (
             <div className="flex gap-3 ml-auto">
-              <Form action="login">
-                <Button>Login</Button>
+              {/* progressive enhancement: defaults to form route in case js is not present to open modal */}
+
+              <Form action="login" onSubmit={e => e.preventDefault()}>
+                <AuthModal trigger={<Button>Login</Button>} />
               </Form>
-              <Form action="register">
-                <Button variant="default">Criar conta</Button>
+
+              <Form action="register" onSubmit={e => e.preventDefault()}>
+                <AuthModal
+                  trigger={<Button variant="default">Criar conta</Button>}
+                  defaultView="register"
+                />
               </Form>
             </div>
           )}
 
           {optionalUser && (
-            <Form method="post" action="logout" className="ml-auto">
+            <Form method="post" action="logout" replace className="ml-auto">
               <Button variant="danger">Sair</Button>
             </Form>
           )}

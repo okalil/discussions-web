@@ -7,7 +7,7 @@ import {
   useNavigation,
   useSubmit,
 } from '@remix-run/react';
-import { redirect } from '@remix-run/node';
+import { json, redirect } from '@remix-run/node';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { Button } from '~/components/button';
@@ -33,7 +33,18 @@ export const action = async ({ request }: DataFunctionArgs) => {
       type: 'success',
     });
 
-    return redirect('/', { headers: { 'Set-Cookie': await storage.commit() } });
+    const url = new URL(request.url);
+    if (url.searchParams.has('modal'))
+      return json(
+        { ok: true },
+        {
+          headers: { 'Set-Cookie': await storage.commit() },
+        }
+      );
+
+    return redirect('/', {
+      headers: { 'Set-Cookie': await storage.commit() },
+    });
   } catch (error) {
     return handleActionError({ error, request });
   }
