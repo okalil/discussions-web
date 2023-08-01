@@ -5,15 +5,14 @@ import type { DataFunctionArgs } from '@remix-run/node';
 import { Button } from '~/components/button';
 import { getDiscussions } from './get-discussions.server';
 import { Discussion } from './discussion';
-import { getSessionStorage } from '~/session.server';
-import { getToken } from '~/modules/auth/auth.server';
+import { getSessionManager } from '~/session.server';
 
 export const meta: V2_MetaFunction = () => [
   { title: 'Top discussions | Community' },
 ];
 export const loader = async ({ request }: DataFunctionArgs) => {
-  const storage = await getSessionStorage(request);
-  return getDiscussions(getToken(storage.session));
+  const session = await getSessionManager(request);
+  return getDiscussions(session.get('token'));
 };
 
 export type Loader = typeof loader;

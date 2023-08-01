@@ -1,7 +1,7 @@
 import { json } from '@remix-run/node';
 import { RequesterError } from './requester';
 import { addToast } from '~/lib/toast.server';
-import { getSessionStorage } from '~/session.server';
+import { getSessionManager } from '~/session.server';
 
 export async function handleActionError({
   error,
@@ -14,22 +14,22 @@ export async function handleActionError({
     throw error;
   }
 
-  const storage = await getSessionStorage(request);
+  const session = await getSessionManager(request);
 
   if (error instanceof RequesterError) {
-    addToast(storage.session, {
+    addToast(session, {
       type: 'error',
       content: error.message,
     });
     return json(error.data, {
       status: error.status,
       headers: {
-        'Set-Cookie': await storage.commit(),
+        'Set-Cookie': await session.commit(),
       },
     });
   }
 
-  addToast(storage.session, {
+  addToast(session, {
     type: 'error',
     content: error instanceof Error ? error.message : 'Unexpected Server Error',
   });
@@ -37,7 +37,7 @@ export async function handleActionError({
   return json(error, {
     status: 500,
     headers: {
-      'Set-Cookie': await storage.commit(),
+      'Set-Cookie': await session.commit(),
     },
   });
 }

@@ -10,7 +10,6 @@ import {
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { getToken } from '~/modules/auth/auth.server';
 import { requester } from '~/lib/requester';
 import { handleActionError } from '~/lib/handle-action-error.server';
 import { Button } from '~/components/button';
@@ -19,7 +18,7 @@ import { getComments } from './get-comments';
 import { socket } from '~/ws/socket.client';
 import { CommentsCount } from './comments-count';
 import { CommentsList } from './comments-list';
-import { getSessionStorage } from '~/session.server';
+import { getSessionManager } from '~/session.server';
 import { Avatar } from '~/components/avatar';
 import { DiscussionVote } from '~/modules/home/discussion-vote';
 import { cn } from '~/lib/classnames';
@@ -27,8 +26,8 @@ import { FormTextarea } from '~/components/forms/form-textarea';
 
 export const action = async ({ request, params }: DataFunctionArgs) => {
   try {
-    const storage = await getSessionStorage(request);
-    const token = getToken(storage.session);
+    const session = await getSessionManager(request);
+    const token = session.get('token');
     const body = new URLSearchParams(await request.text());
     const commentId = body.get('id');
     if (commentId) {
@@ -49,8 +48,8 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
 };
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
-  const storage = await getSessionStorage(request);
-  const token = getToken(storage.session);
+  const session = await getSessionManager(request);
+  const token = session.get('token');
   const [{ discussion }, { comments }] = await Promise.all([
     getDiscussion(params.id, token),
     getComments(params.id, token),

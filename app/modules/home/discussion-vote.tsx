@@ -15,6 +15,9 @@ export function DiscussionVote({
 }: DiscussionVoteProps) {
   const [discussion, setDiscussion] = React.useState(initialDiscussion);
 
+  // keep local state in sync with loader data
+  React.useEffect(() => setDiscussion(initialDiscussion), [initialDiscussion]);
+
   const root = useRouteLoaderData('root');
 
   useSocketEvent('discussion_update', async discussionId => {

@@ -1,16 +1,15 @@
 import type { DataFunctionArgs } from '@remix-run/node';
 import { Form, Link, Outlet, useLoaderData } from '@remix-run/react';
 
-import { getToken } from '~/modules/auth/auth.server';
 import { Button } from '~/components/button';
 import { cn } from '~/lib/classnames';
-import { getSessionStorage } from '~/session.server';
+import { getSessionManager } from '~/session.server';
 import { AuthModal } from '../auth/modal';
 import { getUser } from './get-user.server';
 
 export const loader = async ({ request }: DataFunctionArgs) => {
-  const storage = await getSessionStorage(request);
-  const token = await getToken(storage.session);
+  const session = await getSessionManager(request);
+  const token = session.get('token');
   if (token) return getUser(token);
   return null;
 };

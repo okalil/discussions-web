@@ -7,20 +7,19 @@ import {
   type V2_MetaFunction,
 } from '@remix-run/react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { getToken } from '~/modules/auth/auth.server';
 
 import { Button } from '~/components/button';
 import { FormInput } from '~/components/forms/form-input';
 import { handleActionError } from '~/lib/handle-action-error.server';
 import { requester } from '~/lib/requester';
-import { getSessionStorage } from '~/session.server';
+import { getSessionManager } from '~/session.server';
 
 export const meta: V2_MetaFunction = () => [{ title: 'Nova discussão' }];
 
 export const action = async ({ request }: DataFunctionArgs) => {
   try {
-    const storage = await getSessionStorage(request);
-    const token = getToken(storage.session);
+    const session = await getSessionManager(request);
+    const token = session.get('token');
     const body = new URLSearchParams(await request.text());
     const response = await requester.post(`/api/v1/discussions`, {
       body,

@@ -12,24 +12,6 @@ export const sessionStorage = createCookieSessionStorage({
   },
 });
 
-export const getSessionStorage = async (request: Request) => {
-  const session = await sessionStorage.getSession(
-    request.headers.get('Cookie')
-  );
-
-  const commit = async () => {
-    const cookie = await sessionStorage.commitSession(session);
-    return cookie;
-  };
-
-  const destroy = async () => {
-    const cookie = await sessionStorage.destroySession(session);
-    return cookie;
-  };
-
-  return { session, commit, destroy };
-};
-
 class SessionManager implements Session {
   id: string;
   data: Partial<SessionData & { [x: `__flash_${string}__`]: any }>;
@@ -45,7 +27,6 @@ class SessionManager implements Session {
   unset(key: string): void {
     return this.session.get(key);
   }
-
   get(key: string) {
     return this.session.get(key);
   }

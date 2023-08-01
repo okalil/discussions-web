@@ -14,9 +14,8 @@ import { Button } from '~/components/button';
 import { FormInput } from '~/components/forms/form-input';
 import { requester } from '~/lib/requester';
 import { handleActionError } from '~/lib/handle-action-error.server';
-import { getSessionStorage } from '~/session.server';
+import { getSessionManager } from '~/session.server';
 import { addToast } from '~/lib/toast.server';
-import { saveToken } from './auth.server';
 
 export const meta: V2_MetaFunction = () => [{ title: 'Criar conta' }];
 
@@ -26,9 +25,9 @@ export const action = async ({ request }: DataFunctionArgs) => {
     const response = await requester.post('/api/v1/users', { body });
     const { token } = await response.json();
 
-    const storage = await getSessionStorage(request);
-    saveToken(storage.session, token);
-    addToast(storage.session, {
+    const session = await getSessionManager(request);
+    session.set('token', token);
+    addToast(session, {
       content: 'Autenticado com sucesso!',
       type: 'success',
     });
@@ -38,11 +37,11 @@ export const action = async ({ request }: DataFunctionArgs) => {
       return json(
         { ok: true },
         {
-          headers: { 'Set-Cookie': await storage.commit() },
+          headers: { 'Set-Cookie': await session.commit() },
         }
       );
 
-    return redirect('/', { headers: { 'Set-Cookie': await storage.commit() } });
+    return redirect('/', { headers: { 'Set-Cookie': await session.commit() } });
   } catch (error) {
     return handleActionError({ error, request });
   }

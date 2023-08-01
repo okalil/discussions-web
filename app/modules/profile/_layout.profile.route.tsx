@@ -1,7 +1,7 @@
 import { redirect, type DataFunctionArgs } from '@remix-run/node';
 import { z } from 'zod';
 
-import { getSessionStorage } from '~/session.server';
+import { getSessionManager } from '~/session.server';
 import { requester } from '~/lib/requester';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
@@ -19,15 +19,15 @@ import { addToast } from '~/lib/toast.server';
 
 export const action = async ({ request }: DataFunctionArgs) => {
   try {
-    const storage = await getSessionStorage(request);
-    const token = storage.session.get('token');
+    const session = await getSessionManager(request);
+    const token = session.get('token');
 
     const body = await request.formData();
     await requester.put('/api/v1/profile', { body, token });
-    addToast(storage.session, { type: 'success', content: 'Salvo!' });
+    addToast(session, { type: 'success', content: 'Salvo!' });
 
     return redirect(request.url, {
-      headers: { 'Set-Cookie': await storage.commit() },
+      headers: { 'Set-Cookie': await session.commit() },
     });
   } catch (error) {
     return handleActionError({ error, request });
@@ -35,8 +35,8 @@ export const action = async ({ request }: DataFunctionArgs) => {
 };
 
 export const loader = async ({ request }: DataFunctionArgs) => {
-  const storage = await getSessionStorage(request);
-  const token = storage.session.get('token');
+  const session = await getSessionManager(request);
+  const token = session.get('token');
 
   if (!token) throw new Response('Not Found', { status: 404 });
 
