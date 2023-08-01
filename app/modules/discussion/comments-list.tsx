@@ -11,6 +11,9 @@ export function CommentsList() {
 
   const [comments, setComments] = React.useState(data.comments);
 
+  // keep local state in sync with loader
+  React.useEffect(() => setComments(data.comments), [data.comments])
+
   useSocketEvent('comment_new', comment =>
     setComments(state => state.concat([comment]))
   );

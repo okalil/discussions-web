@@ -1,8 +1,10 @@
 import { redirect, type DataFunctionArgs } from '@remix-run/node';
 import {
   Form,
+  Link,
   useFormAction,
   useLoaderData,
+  useMatches,
   useNavigation,
   useSubmit,
   type V2_MetaFunction,
@@ -79,6 +81,9 @@ export default function DiscussionRoute() {
     };
   }, [discussion.id]);
 
+  const [root] = useMatches();
+  const hasUser = !!root.data?.token;
+
   return (
     <main className="max-w-4xl mx-auto px-3 py-3">
       <h1 className="text-xl font-semibold mb-2">{discussion.title}</h1>
@@ -99,7 +104,7 @@ export default function DiscussionRoute() {
         <DiscussionVote discussion={discussion} />
       </section>
 
-      <section className="mb-4">
+      <section className="mb-6">
         <h2 className="font-semibold mb-3">
           <CommentsCount defaultCount={discussion.comments_count} />
         </h2>
@@ -107,7 +112,19 @@ export default function DiscussionRoute() {
         <CommentsList />
       </section>
 
-      <CreateComment />
+      {hasUser ? (
+        <CreateComment />
+      ) : (
+        <div className="rounded-md border border-gray-300 px-3 py-3">
+          <Link to="/register" className="underline">
+            Sign up
+          </Link>{' '}
+          now to comment on this discussion. Already have an account?{' '}
+          <Link to="/login" className="underline">
+            Sign in
+          </Link>
+        </div>
+      )}
     </main>
   );
 }
@@ -128,10 +145,7 @@ function CreateComment() {
           submit(e?.target, { preventScrollReset: true });
           form.reset();
         })}
-        className={cn(
-          'px-3 py-3',
-          'border border-gray-300 rounded-md'
-        )}
+        className={cn('px-3 py-3', 'border border-gray-300 rounded-md')}
       >
         <FormTextarea
           label="Write"
