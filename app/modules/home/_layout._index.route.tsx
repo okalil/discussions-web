@@ -1,4 +1,4 @@
-import type { V2_MetaFunction } from '@remix-run/react';
+import type { MetaFunction } from '@remix-run/react';
 import { Form, useLoaderData, useMatches } from '@remix-run/react';
 import type { DataFunctionArgs } from '@remix-run/node';
 
@@ -7,7 +7,7 @@ import { getDiscussions } from './get-discussions.server';
 import { Discussion } from './discussion';
 import { getSessionManager } from '~/session.server';
 
-export const meta: V2_MetaFunction = () => [
+export const meta: MetaFunction = () => [
   { title: 'Top discussions | Community' },
 ];
 export const loader = async ({ request }: DataFunctionArgs) => {

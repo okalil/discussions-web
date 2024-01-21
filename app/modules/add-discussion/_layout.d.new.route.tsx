@@ -4,7 +4,7 @@ import {
   useFormAction,
   useNavigation,
   useSubmit,
-  type V2_MetaFunction,
+  type MetaFunction,
 } from '@remix-run/react';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -14,7 +14,7 @@ import { handleActionError } from '~/lib/handle-action-error.server';
 import { requester } from '~/lib/requester';
 import { getSessionManager } from '~/session.server';
 
-export const meta: V2_MetaFunction = () => [{ title: 'Nova discussão' }];
+export const meta: MetaFunction = () => [{ title: 'Nova discussão' }];
 
 export const action = async ({ request }: DataFunctionArgs) => {
   try {

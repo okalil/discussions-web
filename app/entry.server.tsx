@@ -6,11 +6,16 @@
 
 import { PassThrough } from 'node:stream';
 
-import type { EntryContext } from '@remix-run/node';
-import { Response } from '@remix-run/node';
+import {
+  createReadableStreamFromReadable,
+  type EntryContext,
+} from '@remix-run/node';
 import { RemixServer } from '@remix-run/react';
 import isbot from 'isbot';
 import { renderToPipeableStream } from 'react-dom/server';
+
+import dns from 'node:dns';
+dns.setDefaultResultOrder('ipv4first');
 
 const ABORT_DELAY = 5_000;
 
@@ -38,7 +43,7 @@ export default async function handleRequest(
           responseHeaders.set('Content-Type', 'text/html');
 
           resolve(
-            new Response(body, {
+            new Response(createReadableStreamFromReadable(body), {
               headers: responseHeaders,
               status: responseStatusCode,
             })

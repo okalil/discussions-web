@@ -1,4 +1,4 @@
-import type { V2_MetaFunction } from '@remix-run/react';
+import type { MetaFunction } from '@remix-run/react';
 import type { DataFunctionArgs } from '@remix-run/node';
 import {
   Form,
@@ -17,7 +17,7 @@ import { handleActionError } from '~/lib/handle-action-error.server';
 import { getSessionManager } from '~/session.server';
 import { addToast } from '~/lib/toast.server';
 
-export const meta: V2_MetaFunction = () => [{ title: 'Criar conta' }];
+export const meta: MetaFunction = () => [{ title: 'Criar conta' }];
 
 export const action = async ({ request }: DataFunctionArgs) => {
   try {

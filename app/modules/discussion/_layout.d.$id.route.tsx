@@ -7,7 +7,7 @@ import {
   useMatches,
   useNavigation,
   useSubmit,
-  type V2_MetaFunction,
+  type MetaFunction,
 } from '@remix-run/react';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -61,7 +61,7 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
 
 export type Loader = typeof loader;
 
-export const meta: V2_MetaFunction<typeof loader> = ({ data }) => [
+export const meta: MetaFunction<typeof loader> = ({ data }) => [
   { title: data?.discussion.title },
 ];
 
