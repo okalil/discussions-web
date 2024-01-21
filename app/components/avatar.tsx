@@ -28,6 +28,7 @@ export function Avatar({ src, alt, size, className }: AvatarProps) {
       className={cn('rounded-full', className)}
       width={size}
       height={size}
+      style={{ width: size, height: size }}
     />
   );
 }

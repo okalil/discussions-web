@@ -19,9 +19,8 @@ import { NavigationProgress } from './components/navigation-progress';
 import { getToastStorage } from './lib/toast.server';
 import { useSocketAuth } from './ws/use-socket-auth';
 import { getSessionManager } from './session.server';
-import styles from './tailwind.css';
 
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
+import './tailwind.css';
 
 declare global {
   export interface Window {
